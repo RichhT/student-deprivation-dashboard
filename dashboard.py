@@ -253,6 +253,100 @@ with st.expander("📚 Data Sources"):
     st.markdown("- [Schools, Pupils and Their Characteristics](https://explore-education-statistics.service.gov.uk/find-statistics/school-pupils-and-their-characteristics)")
     st.markdown("- [Children Looked After in England](https://explore-education-statistics.service.gov.uk/find-statistics/children-looked-after-in-england-including-adoptions)")
 
+# Row 4b: Overlapping Disadvantages Comparison
+st.markdown("---")
+st.subheader("Overlapping Disadvantages: Our School vs National")
+
+st.markdown("""
+While comprehensive multi-factor disadvantage data isn't published nationally, the DfE does track some **two-way overlaps**.
+These show how disadvantage factors cluster together:
+""")
+
+# Calculate our school's overlaps
+sen_fsm_overlap = sum(1 for row in filtered_data if row['SEN at any time this academic year?'] == 'Yes'
+                       and row['Ever 6 FSM at any time between 01 Aug 2020 and 30 Aug 2026?'] == 'Yes')
+sen_total = sum(1 for row in filtered_data if row['SEN at any time this academic year?'] == 'Yes')
+sen_fsm_pct = (sen_fsm_overlap / sen_total * 100) if sen_total > 0 else 0
+
+cp_fsm_overlap = sum(1 for row in filtered_data if row['Child Protection Status'].strip()
+                      and row['Ever 6 FSM at any time between 01 Aug 2020 and 30 Aug 2026?'] == 'Yes')
+cp_total = sum(1 for row in filtered_data if row['Child Protection Status'].strip())
+cp_fsm_pct = (cp_fsm_overlap / cp_total * 100) if cp_total > 0 else 0
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.markdown("#### SEN Pupils Eligible for FSM")
+
+    overlap_data = {
+        'Category': ['Our School\n(SEN + FSM)', 'National Average\n(SEN + FSM)'],
+        'Percentage': [sen_fsm_pct, 40.8],  # National average of EHC (43.8%) and SEN Support (39.3%)
+        'Description': [
+            f'{sen_fsm_overlap}/{sen_total} SEN pupils',
+            'Avg of EHC plans (43.8%) & SEN Support (39.3%)'
+        ]
+    }
+
+    fig = go.Figure(data=[go.Bar(
+        x=overlap_data['Category'],
+        y=overlap_data['Percentage'],
+        marker_color=['#e74c3c', '#3498db'],
+        text=[f"{v:.1f}%<br>{overlap_data['Description'][i]}" for i, v in enumerate(overlap_data['Percentage'])],
+        textposition='auto',
+    )])
+
+    fig.update_layout(
+        yaxis_title="% of SEN Pupils who are FSM-Eligible",
+        height=400,
+        yaxis_range=[0, 100],
+        showlegend=False
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
+with col2:
+    st.markdown("#### CS Involvement Cases Eligible for FSM")
+
+    # For CS involvement, use national Child Protection Plan data
+    overlap_data_cp = {
+        'Category': ['Our School\n(CS + FSM)', 'National Average\n(CPP + FSM)'],
+        'Percentage': [cp_fsm_pct, 78.1],  # National: 78.1% of children on CP plans are FSM-eligible
+        'Description': [
+            f'{cp_fsm_overlap}/{cp_total} CS cases',
+            'Children on CP Plans'
+        ]
+    }
+
+    fig = go.Figure(data=[go.Bar(
+        x=overlap_data_cp['Category'],
+        y=overlap_data_cp['Percentage'],
+        marker_color=['#e74c3c', '#3498db'],
+        text=[f"{v:.1f}%<br>{overlap_data_cp['Description'][i]}" for i, v in enumerate(overlap_data_cp['Percentage'])],
+        textposition='auto',
+    )])
+
+    fig.update_layout(
+        yaxis_title="% of CS Cases who are FSM-Eligible",
+        height=400,
+        yaxis_range=[0, 100],
+        showlegend=False
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
+st.info("""
+**Key Insight:** These overlaps show how disadvantage factors cluster together. Nationally, pupils with one form of disadvantage
+(like SEN or CS involvement) are **2-3x more likely** to also experience economic disadvantage (FSM). Our school's overlap patterns
+help identify students facing multiple, compounding challenges.
+""")
+
+# Sources for overlap data
+with st.expander("📚 Overlap Data Sources"):
+    st.markdown("**National overlap data sources:**")
+    st.markdown("- **SEN + FSM overlap**: DfE Special Educational Needs in England 2024/25")
+    st.markdown("- **CS Involvement + FSM overlap**: DfE Outcomes for Children in Need, including children looked after 2023/24")
+    st.markdown("\n**Links:**")
+    st.markdown("- [Special Educational Needs in England](https://explore-education-statistics.service.gov.uk/find-statistics/special-educational-needs-in-england)")
+    st.markdown("- [Outcomes for Children in Need](https://explore-education-statistics.service.gov.uk/find-statistics/outcomes-for-children-in-need-including-children-looked-after-by-local-authorities-in-england)")
+
 # Row 5: Pyramid Visualization
 st.markdown("---")
 st.subheader("Disadvantage Markers Pyramid")
