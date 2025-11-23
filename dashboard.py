@@ -158,7 +158,7 @@ with col1:
         'SEN': sen,
         'Ever 6 FSM': fsm,
         'Pupil Premium': pp_recipient,
-        'Child Protection': cp,
+        'CS Involvement': cp,
         'L3 Response': l3,
         'Young Carers': young_carer,
         'Looked After': lac
@@ -368,9 +368,9 @@ with col1:
 
 with col2:
     st.warning(f"""
-    **Child Protection**
+    **CS Involvement**
 
-    {cp} students on child protection plans
+    {cp} students with children's services involvement
     requiring urgent support and monitoring
     """)
 
