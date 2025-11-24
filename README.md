@@ -1,18 +1,18 @@
-# Student Deprivation Dashboard
+# Student Disadvantage Dashboard
 
-An interactive Streamlit dashboard for analyzing student demographic and deprivation data.
+An interactive Streamlit dashboard for analyzing student demographic and disadvantage data.
 
 ## Features
 
-- **Overall Deprivation Metrics**: View total students and percentage disadvantaged
+- **Overall Disadvantage Metrics**: View total students and percentage disadvantaged
 - **Interactive Filters**: Filter by year group to drill down into specific cohorts
 - **Visual Analytics**:
   - Pie chart showing disadvantaged vs non-disadvantaged students
-  - Bar chart of multiple deprivation factors (0-6 factors)
+  - Bar chart of multiple disadvantage factors (0-6 factors)
   - Year group comparison charts
   - Vulnerability factors breakdown (SEN, FSM, Pupil Premium, etc.)
   - Heatmap showing factors across year groups
-- **Key Insights**: Highlighted statistics for multiple deprivation, child protection, and looked after children
+- **Key Insights**: Highlighted statistics for multiple disadvantage, child protection, and looked after children
 
 ## Quick Start
 
@@ -32,15 +32,17 @@ streamlit run dashboard.py
 
 The dashboard will automatically open in your default web browser at `http://localhost:8501`
 
+**Direct Link**: [http://localhost:8501](http://localhost:8501) (only works when dashboard is running)
+
 ## Dashboard Sections
 
 1. **Top Metrics Bar**: Quick overview of total students, disadvantaged %, FSM %, SEN %, and Pupil Premium %
 
-2. **Overall Deprivation Status**: Pie chart showing the proportion of disadvantaged students
+2. **Overall Disadvantage Status**: Pie chart showing the proportion of disadvantaged students
 
-3. **Multiple Deprivation Factors**: Distribution of students by number of disadvantage factors
+3. **Multiple Disadvantage Factors**: Distribution of students by number of disadvantage factors
 
-4. **Year Group Analysis**: Compare deprivation rates across different year groups
+4. **Year Group Analysis**: Compare disadvantage rates across different year groups
 
 5. **Vulnerability Factors**: Detailed breakdown of different types of disadvantage (SEN, FSM, Child Protection, etc.)
 

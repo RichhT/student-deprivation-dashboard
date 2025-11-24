@@ -6,7 +6,7 @@ import plotly.express as px
 
 # Page configuration
 st.set_page_config(
-    page_title="Student Deprivation Dashboard",
+    page_title="Student Disadvantage Dashboard",
     page_icon="📊",
     layout="wide"
 )
@@ -24,7 +24,7 @@ data = load_data()
 total_students = len(data)
 
 # Header
-st.title("📊 Student Deprivation Dashboard")
+st.title("📊 Student Disadvantage Dashboard")
 st.markdown("### Analysis of Disadvantage and Vulnerability Factors")
 
 # Create tabs
@@ -139,7 +139,7 @@ with tab1:
     col1, col2 = st.columns(2)
 
     with col1:
-        st.subheader("Overall Deprivation Status")
+        st.subheader("Overall Disadvantage Status")
 
         dep_counts = Counter(row['Disadvantaged?'] for row in filtered_data)
         disadvantaged_count = dep_counts.get('Y', 0)
@@ -157,24 +157,63 @@ with tab1:
     with col2:
         st.subheader("Number of Disadvantage Factors")
 
+        # Toggle for percentage vs count
+        show_percentage = st.checkbox("Show as percentage", key="dis_factors_pct")
+
         dis_count = Counter(int(row['Disadvantaged Count']) for row in filtered_data)
 
+        # Calculate cumulative counts (students with X+ factors)
+        max_factors = max(dis_count.keys()) if dis_count else 0
+        cumulative_data = []
+
+        for i in range(max_factors + 1):
+            # Count students with i or more factors
+            count = sum(dis_count[k] for k in dis_count.keys() if k >= i)
+            pct = (count / filtered_total * 100) if filtered_total > 0 else 0
+
+            if i == 0:
+                label = "0"
+            elif i == 1:
+                label = "1+"
+            else:
+                label = f"{i}+"
+
+            cumulative_data.append({
+                'label': label,
+                'count': count,
+                'percentage': pct
+            })
+
+        # Prepare chart data
+        x_vals = [d['label'] for d in cumulative_data]
+        if show_percentage:
+            y_vals = [d['percentage'] for d in cumulative_data]
+            text_vals = [f"{d['percentage']:.1f}%<br>({d['count']} students)" for d in cumulative_data]
+            y_title = "Percentage of Students (%)"
+            y_range = [0, 100]
+        else:
+            y_vals = [d['count'] for d in cumulative_data]
+            text_vals = [f"{d['count']}<br>({d['percentage']:.1f}%)" for d in cumulative_data]
+            y_title = "Number of Students"
+            y_range = None
+
         fig = go.Figure(data=[go.Bar(
-            x=list(sorted(dis_count.keys())),
-            y=[dis_count[k] for k in sorted(dis_count.keys())],
+            x=x_vals,
+            y=y_vals,
             marker_color='#3498db',
-            text=[dis_count[k] for k in sorted(dis_count.keys())],
+            text=text_vals,
             textposition='auto'
         )])
         fig.update_layout(
-            xaxis_title="Number of Factors",
-            yaxis_title="Number of Students",
-            height=350
+            xaxis_title="Number of Factors (Cumulative)",
+            yaxis_title=y_title,
+            height=350,
+            yaxis_range=y_range
         )
         st.plotly_chart(fig, use_container_width=True)
 
-    # Row 2: Deprivation by year group
-    st.subheader("Deprivation by Year Group")
+    # Row 2: Disadvantage by year group
+    st.subheader("Disadvantage by Year Group")
 
     year_dis = defaultdict(lambda: {'total': 0, 'disadvantaged': 0})
     for row in filtered_data:
@@ -641,7 +680,7 @@ with tab1:
         multi_dep_count = sum(1 for row in filtered_data if int(row.get('Disadvantaged Count', 0)) >= 3)
         multi_dep_pct = (multi_dep_count / filtered_total * 100) if filtered_total > 0 else 0
         st.info(f"""
-        **Multiple Deprivation**
+        **Multiple Disadvantage**
 
         {multi_dep_count} students ({multi_dep_pct:.1f}%)
         face 3 or more disadvantage factors
