@@ -30,6 +30,32 @@ st.markdown("---")
 
 # Sidebar filters
 st.sidebar.header("Filters")
+
+# Function to categorize students by provision
+def get_provision_type(row):
+    reg_form = row['Registration form(s) this academic year']
+    if 'LST' in reg_form:
+        return 'Eduk8'
+    elif 'AME' in reg_form:
+        return 'Beacon'
+    elif 'KJO' in reg_form:
+        return 'R-Bridge'
+    else:
+        return 'Mainstream'
+
+# Add provision type to each row
+for row in data:
+    row['Provision'] = get_provision_type(row)
+
+# Provision filter
+provision_types = ['Mainstream', 'Eduk8', 'Beacon', 'R-Bridge']
+selected_provisions = st.sidebar.multiselect(
+    "Select Provision Type",
+    provision_types,
+    default=provision_types
+)
+
+# Year group filter
 year_groups = sorted(set(row['NC Year(s) for this academic year'] for row in data))
 selected_years = st.sidebar.multiselect(
     "Select Year Groups",
@@ -38,7 +64,9 @@ selected_years = st.sidebar.multiselect(
 )
 
 # Filter data
-filtered_data = [row for row in data if row['NC Year(s) for this academic year'] in selected_years]
+filtered_data = [row for row in data
+                 if row['NC Year(s) for this academic year'] in selected_years
+                 and row['Provision'] in selected_provisions]
 filtered_total = len(filtered_data)
 
 # Calculate metrics
@@ -78,6 +106,29 @@ with col5:
     st.metric("Pupil Premium", f"{pp_pct:.1f}%", f"{pp_recipient} students")
 
 st.markdown("---")
+
+# Provision breakdown summary
+if len(selected_provisions) > 1:
+    st.subheader("Students by Provision Type")
+
+    provision_counts = {}
+    provision_disadvantaged = {}
+
+    for prov in provision_types:
+        prov_students = [row for row in filtered_data if row['Provision'] == prov]
+        provision_counts[prov] = len(prov_students)
+        provision_disadvantaged[prov] = sum(1 for row in prov_students if row['Disadvantaged?'] == 'Y')
+
+    col1, col2, col3, col4 = st.columns(4)
+
+    for i, (prov, col) in enumerate(zip(provision_types, [col1, col2, col3, col4])):
+        with col:
+            count = provision_counts[prov]
+            dis = provision_disadvantaged[prov]
+            dis_pct = (dis / count * 100) if count > 0 else 0
+            st.metric(prov, count, f"{dis_pct:.1f}% disadvantaged")
+
+    st.markdown("---")
 
 # Row 1: Overview charts
 col1, col2 = st.columns(2)
